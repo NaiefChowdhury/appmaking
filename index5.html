@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+</head>
+<style>
+    .form-container {
+        position: relative;
+        width: 100%;
+        height: 55vh;
+        display: block;
+        background-color: yellow;
+    }
+
+    .add-product {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 70%;
+    }
+
+    .card {
+        display: inline-block;
+        margin-right: 40px;
+        margin-left: 40px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .btn {
+        margin-left: 10px;
+        margin-right: 10px;
+        padding: 15px 30px;
+    }
+</style>
+
+<body>
+    <div class="form-container">
+        <form class="add-product">
+            <div class="form-group">
+                <label>Product Name</label>
+                <input type="text" class="form-control" name="product" placeholder="Product Name">
+            </div>
+            <div class="form-group">
+                <label>Product Prize</label>
+                <input type="number" class="form-control" name="prize" placeholder="Prize">
+            </div>
+            <button type="submit" class="btn btn-primary">ADD</button>
+        </form>
+    </div>
+    <br>
+    <hr>
+    <br>
+
+    <div class="get-card">
+
+    </div>
+
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.1/firebase-analytics.js"></script>
+
+    <script>
+        document.title = "Adding Products || ADMIN";
+        var firebaseConfig = {
+            apiKey: "AIzaSyBwYb3nEwcFW0hCeBBjAT4lNVouGnRezIk",
+            authDomain: "firestore-first-work.firebaseapp.com",
+            projectId: "firestore-first-work",
+            storageBucket: "firestore-first-work.appspot.com",
+            messagingSenderId: "803001938374",
+            appId: "1:803001938374:web:e3dad0ce5e81b4602fc2c7",
+            measurementId: "G-LSDLNVKCZ5"
+        };
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
+
+        const body = document.body;
+        const firestore = firebase.firestore();
+
+        const form = document.querySelector('.add-product');
+        const getCard = document.querySelector('.get-card');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            firestore.collection('DS').add({
+                Product: form.product.value,
+                Prize: form.prize.value
+            });
+            form.product.value = '';
+            form.prize.value = '';
+        });
+
+
+        function renderCafe(doc) {
+            const mainCard = document.createElement('div');
+            mainCard.setAttribute('class', 'card');
+
+
+
+            const cardBody = document.createElement('div');
+            cardBody.setAttribute('class', 'card-body');
+            cardBody.setAttribute('data-id', doc.id);
+
+
+            // Product Name completed
+            const product = document.createElement('h5');
+            product.setAttribute('class', 'card-title');
+            product.textContent = doc.data().Product;
+
+            // Prize completed
+            const prize = document.createElement('p');
+            prize.setAttribute('class', 'card-text');
+            prize.textContent = doc.data().Prize + " Tk (প্রতি কেজি)";
+
+            // Edit Button completed
+            const edit = document.createElement('button');
+            edit.setAttribute('class', 'btn btn-primary');
+            edit.textContent = "EDIT";
+
+            // Delete Button completed
+            const del = document.createElement('button');
+            del.setAttribute('class', 'btn btn-primary');
+            del.textContent = "DELETE";
+
+            cardBody.appendChild(product);
+            cardBody.appendChild(prize);
+            cardBody.appendChild(edit);
+            cardBody.appendChild(del);
+
+            mainCard.appendChild(cardBody);
+            getCard.appendChild(mainCard);
+
+
+            del.addEventListener('click', (e) => {
+                let id = e.target.parentElement.getAttribute('data-id');
+                firestore.collection('DS').doc(id).delete();
+            });
+
+        }
+
+
+        firestore.collection('DS').orderBy('Product').get().then(snapshot => {
+            snapshot.docs.forEach(doc => {
+                renderCafe(doc);
+            });
+        });
+
+
+    </script>
+
+</body>
+
+</html>
